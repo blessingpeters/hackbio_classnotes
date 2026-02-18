@@ -156,3 +156,168 @@ c()
 print()
 sum(c(1,2,3))
 mean(c(89, 2, 33, 45))
+
+abs() #to get the absolute value of mathematical operations - eg you have -34 and you want just 34
+cbind() #joining of columns
+rbind() # joining of rows
+matrix()
+lm() #linear regression
+install.packages() # to install packages
+
+#custom functions
+#lets calculate the GC content of a sequence -GC content is the percentage of G and C in a nucleotide sequence
+
+geneA = 'GTCAAATGGAAAACCC'
+
+length(geneA)
+geneA <- strsplit(x= geneA, split = "") [[1]]
+print(geneA)
+
+gc_counter <- 0 #initialize with zero
+
+for (nuc in geneA){ #for loop
+  print(nuc)
+  
+  if (nuc == 'G' | nuc == 'C'){ #if statement
+    gc_counter = gc_counter +1 #operation
+  }
+}
+(gc_counter/ length(geneA) ) * 100
+
+
+
+gc_calculator <- function(input_gene) {
+  input_gene <- strsplit(x= input_gene, split = "") [[1]]
+  
+  gc_counter <- 0 #initialize with zero
+  
+  for (nuc in input_gene){ #for loop
+    print(nuc)
+    
+    if (nuc == 'G' | nuc == 'C') { #if statement
+      gc_counter = gc_counter +1 #operation
+    }
+  }
+  return (gc_counter/ length(input_gene) ) * 100
+}
+
+myfinal_GC <- gc_calculator(geneA)
+print(myfinal_GC)
+
+#installing packages
+
+install.packages("pheatmap")
+
+#data visualization
+# categorical plots: These are uses to represent the abundance of a specific category withing yoyr dataset.
+
+isolation_origin_freq <- table(bacteria$Isolation.origin)
+print(isolation_origin_freq)
+
+barplot(height = isolation_origin_freq,
+        width = c(1, 1, 1, 1),
+        names.org = c('Animal', 'Blood' , 'Feces',  'Urine' ),
+        legend = T,
+        las = 2,
+        ylim = c(8, 18),
+        col = c(0:3),
+        )
+
+#pie chart
+pie(isolation_origin_freq,
+    col = c(0:3),
+    radius = 1.01,
+    clockwise = F,
+    lty = 1)
+    
+#always decide what kind of plot would best represent your data
+#multiple categories
+multiple_cat <- table(bacteria$Phenotype, bacteria$Isolation.origin) #pie chart wont represent this correctly
+barplot(height = multiple_cat,
+        width = c(1, 1, 1, 1),
+        names.org = c('Animal', 'Blood' , 'Feces',  'Urine' ),
+        legend = T,
+        las = 2,
+        ylim = c(8, 18),
+        col = c(3:2),
+)
+#Distribution plots
+# Install from source (compiles on your machine)
+install.packages("dplyr", type = "source")
+
+library(ggplot2)
+library(dplyr)
+
+isolation_origin_df <- bacteria %>%
+  count(Isolation.origin)
+isolation_origin_df
+
+ggplot(isolation_origin_df,
+       aes(x= Isolation.origin, y= n))+
+  geom_bar(stat="identity", fill="steelblue")+
+  labs(
+    x="Isolation Origin",
+    y="Count",
+    title="Frequency of Isolation Origins"
+  )+
+  theme_minimal()
+
+#Pie chart: here, A bar plot is created first `coord_polar()` bends it into a circle
+ggplot(isolation_origin_df,
+       aes(x="", y= n, fill= Isolation.origin))+
+  geom_bar(stat="identity", width=1)+
+  coord_polar("y")+
+  theme_void()+
+  labs(title="Isolation Origin Distribution")
+
+#Multiple categories Phenotype × Isolation origin (stacked bar plot)
+multiple_cat_df<- bacteria%>%
+  count(Phenotype, Isolation.origin)
+multiple_cat_df
+
+ggplot(multiple_cat_df,
+       aes(x= Isolation.origin, y= n, fill= Phenotype))+
+  geom_bar(stat="identity")+
+  labs(
+    x="Isolation Origin",
+    y="Count",
+    title="Phenotype by Isolation Origin"
+  )+
+  theme_minimal()
+
+#Box plots
+boxplot(x= bacteria$carb_fit,
+        notch = T,
+        ylim = c(0, 1.5),
+        main = 'My First Boxplot',
+        ylab = 'Fitness',
+        xlab = 'carbenicillin',
+        col= 3)
+
+#Density plots
+plot(density(x = bacteria$carb_fit))
+
+#scatter plots numerical- continuous 
+plot(C1~C2, data = bacteria)
+plot(x = bacteria$C1,
+     y = bacteria$C2,
+     xlab = 'PC1',
+     ylab = 'PC2',
+     xlim = c(0, 10),
+     ylim = c(0, 10),
+     las = 1,
+     main = 'PC Plot',
+     col = as.factor(bacteria$labels),
+     pch = 16,
+     cex = 0.8)
+
+#Heat maps 
+library(pheatmap)
+colnames(bacteria[, 8:13])
+pheatmap(mat = bacteria[, 8:13],
+         border_color = 'black',
+         legend = T,
+         labels_row = bacteria$sample_id,
+         fontsize_row = 6,
+         cluster_cols = T,
+         cluster_rows = T)
